@@ -1,25 +1,38 @@
-import React,{useState, useEffect} from 'react';
-import axios from 'axios';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./App.css";
 
 function App() {
- const [movies, setMovies] = useState([]);
+  const [movies, setMovies] = useState([]);
+
   useEffect(() => {
-      axios.get('http://www.omdbapi.com/?t=blade+runner&apikey=39cf1e4f')
-      .then(res=>{
-        setMovies(res.data);
+    axios
+      .get(
+        "https://api.themoviedb.org/3/search/movie?api_key=e5c218447661fbd87a87bdbafa951cc1&language=en-US&query=Blade&page=1&include_adult=false"
+      )
+      .then((res) => {
+        setMovies(res.data.results);
         console.log(res.data);
       })
-      .catch(error => console.log(error))
-  }, [])
-  
+      .catch((error) => console.log(error));
+  }, []);
+
   return (
     <div className="App">
-        <h1>MOVIES FROM API</h1>
-        
-        <img src={movies.Poster} alt="Blade poster" width="250" height="300"></img>
-         <p style={{fontWeight: "bold"}}>{movies.Title+" "}{movies.Year}</p>
-         <p style={{width: "100px"}}>{movies.Plot}</p>
+      <h1>Movies from themoviedb API</h1>
+
+      {movies.map((movie) => {
+        return (
+          <div style={{ borderBottom: "5px solid red" }}>
+            <p key={movie.id} style={{ fontWeight: "bold" }}>
+              {movie.original_title}
+            </p>
+            <p key={movie.id} style={{ fontWeight: "bold" }}>
+              {movie.overview}
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 }
