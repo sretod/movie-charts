@@ -9,12 +9,14 @@ function App() {
   const [tvNames, setTvNames] = useState([]);
   const [maleNames, setMaleNames] = useState([]);
   const [femaleNames, setFemaleNames] = useState([]);
+  const [actorUniqueId, setActorUniqueId] = useState([]);
+  const [actorsBirthDate, setActorsBirthDate] = useState([]);
 
   const [genderPieChartData, setGenderPieChartData] = useState({
     labels: ["Female", "Male"],
     datasets: [
       {
-        label: 'Female and Male',
+        label: "Female and Male",
         data: [8, 8],
         backgroundColor: ["#DB4437", "#4285F4"],
         borderColor: "black",
@@ -27,16 +29,14 @@ function App() {
     labels: ["tv", "movie"],
     datasets: [
       {
-        label: 'Tv and movies',
+        label: "Tv and movies",
         data: [8, 8],
         backgroundColor: ["#DB4437", "#4285F4"],
         borderColor: "black",
         borderWidth: 2,
       },
     ],
-    
   });
-
 
   useEffect(() => {
     axios
@@ -46,38 +46,30 @@ function App() {
       .then((res) => {
         setMovies(res.data.results);
         console.log(res.data);
-        // femaleAndMale();
+        
       })
       .catch((error) => console.log(error));
   }, []);
 
   useEffect(() => {
-  femaleAndMale(movies);
-  movieAndTvSeries(movies);
-   
-  }, [movies]);
-
-  // useEffect(() => {
-  //   console.log("Just log");
-
-  //     console.log(femaleNames.length);
-  //     console.log(maleNames.length);
-      
+    femaleAndMale(movies);
+    movieAndTvSeries(movies);
+    femaleAndMaleBirth(actorUniqueId);
+    
+  }, [movies, ]);
 
 
-      
-  //   }, [femaleNames, maleNames]);
+  useEffect(() => {
+    
+      console.log(actorUniqueId);
+  }, [actorUniqueId]);
 
   function movieAndTvSeries() {
-
-
     let tvCounter = 0;
-    let movieCounter = 0
+    let movieCounter = 0;
     for (var i = 0; i < movies.length; i++) {
-  
       movies[i]["known_for"].filter(function (item) {
         if (item.media_type === "tv") {
-  
           setTvNames((tvNames) => [...tvNames, item.name]);
 
           tvCounter++;
@@ -90,10 +82,7 @@ function App() {
       });
     }
 
-
-
     setMediaTypePieChartData({
-     
       labels: ["Tv", "Movie"],
       datasets: [
         {
@@ -104,33 +93,27 @@ function App() {
         },
       ],
     });
-
   }
 
   function femaleAndMale() {
     let femaleCounter = 0;
     let maleCounter = 0;
 
-    
-      movies.filter(function (item) {
-      //console.log(item.name);
-      // console.log(item.gender);
-        if (item.gender === 1) {
-          setFemaleNames((femaleNames) => [...femaleNames, item.name]);
-          femaleCounter++;
-          return true;
-        } else {
-          setMaleNames((maleNames) => [...maleNames, item.name]);
-          maleCounter++;
-          return false;
-        }
-      });
+    movies.filter(function (item) {
+      if (item.gender === 1) {
+        setFemaleNames((femaleNames) => [...femaleNames, item.name]);
+        setActorUniqueId((actorUniqueId) => [...actorUniqueId, item.id]);
+        femaleCounter++;
+        return true;
+      } else {
+        setMaleNames((maleNames) => [...maleNames, item.name]);
+        setActorUniqueId((actorUniqueId) => [...actorUniqueId, item.id]);
+        maleCounter++;
+        return false;
+      }
+    });
 
-    
-
-
-      setGenderPieChartData({
-     
+    setGenderPieChartData({
       labels: ["Female", "Male"],
       datasets: [
         {
@@ -141,10 +124,27 @@ function App() {
         },
       ],
     });
-
-  
   }
 
+
+  function femaleAndMaleBirth() {
+    for (var i = 0; i < actorUniqueId.length; i++) {
+    axios
+      .get(
+        "https://api.themoviedb.org/3/person/"+actorUniqueId[i]+"?api_key=e5c218447661fbd87a87bdbafa951cc1&language=en-US"
+      )
+      .then((res) => {
+        setActorsBirthDate(res.data.birthday);
+        console.log("Actor");
+        console.log(res.data.birthday);
+     
+      })
+      .catch((error) => console.log(error));
+    }
+
+
+
+  }
   return (
     <div className="App">
       <h1>Movies from themoviedb API</h1>
@@ -155,17 +155,11 @@ function App() {
         <PieChart chartData={mediaTypePieChartData} />
       </div>
       {movieNames.map((movnam, index) => {
-        return(
-          <p key={index}>{movnam}</p>
-        )
-      }
-      )}
-       {maleNames.map((malenam, index) => {
-        return(
-          <p key={index}>{malenam}</p>
-        )
-      }
-      )}
+        return <p key={index}>{movnam}</p>;
+      })}
+      {maleNames.map((malenam, index) => {
+        return <p key={index}>{malenam}</p>;
+      })}
       <button onClick={movieAndTvSeries}>Click Me!</button>
       <p></p>
 
