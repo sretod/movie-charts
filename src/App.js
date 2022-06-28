@@ -3,7 +3,9 @@ import axios from "axios";
 import "./App.css";
 import PieChart from "./components/PieChart";
 import BarChart from "./components/BarChart";
-
+import ActorsList from "./components/ActorsList";
+import Navbar from "./components/Navbar";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 function App() {
   const [movies, setMovies] = useState([]);
   const [movieNames, setMovieNames] = useState([]);
@@ -155,64 +157,49 @@ function App() {
 
   return (
     <div className="App">
-      <p></p>
-      <h1>Movies from themoviedb API</h1>
-
-      <div style={{ width: "500px" }}>
-        <BarChart chartData={moviesByYearBarChartData} />
-      </div>
-      <div style={{ width: "500px" }}>
-        <PieChart chartData={genderPieChartData} />
-      </div>
-      <div style={{ width: "500px" }}>
-        <PieChart chartData={mediaTypePieChartData} />
-      </div>
-
-      <p>Movies:</p>
-      {movieNames.sort()}
-      <p>Series:</p>
-      {}
-      {tvNames.sort().map((tvnam, index) => {
-        return <p key={index}>{tvnam}</p>;
-      })}
-
-      {movies.map((movie) => {
-        return (
-          <div key={movie.id} style={{ borderBottom: "5px solid red" }}>
-            <img
-              src={
-                "https://www.themoviedb.org/t/p/w300_and_h450_bestv2/" +
-                movie.profile_path
-              }
-              alt="actor poster"
-            ></img>
-            <div style={{ fontWeight: "bold" }}>
-              <p>{movie.name}</p>{" "}
-              {movie.gender === 2 ? (
-                <p className="coin-percent red">Male</p>
-              ) : movie.gender === 1 ? (
-                <p className="coin-percent green">Female</p>
-              ) : (
-                <p className="coin-percent green">Other</p>
-              )}
-            </div>
-            <div style={{ fontWeight: "" }}>
-              {movie.known_for.map((known, index) => {
-                <p>Test</p>;
-                return (
-                  <div key={index}>
-                    {known.media_type === "tv" ? (
-                      <p key={index + 1}>{"Tv series: " + known.name}</p>
-                    ) : (
-                      <p key={index}>{"Movie: " + known.original_title}</p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
+      <BrowserRouter>
+        <Navbar />
+        <Routes>
+          <Route
+            path="/"
+            element={movies.map((movie) => {
+              return (
+                <ActorsList
+                  id={movie.id}
+                  name={movie.name}
+                  profile_path={movie.profile_path}
+                  gender={movie.gender}
+                  known_for={movie.known_for}
+                />
+              );
+            })}
+          />
+          <Route
+            path="/barmovieyear"
+            element={
+              <div style={{ width: "600px", margin: "auto" }}>
+                <BarChart chartData={moviesByYearBarChartData} />
+              </div>
+            }
+          />
+          <Route
+            path="/piegender"
+            element={
+              <div style={{ width: "600px", margin: "auto" }}>
+                <PieChart chartData={genderPieChartData} />
+              </div>
+            }
+          />
+          <Route
+            path="/piemovietv"
+            element={
+              <div style={{ width: "600px", margin: "auto" }}>
+                <PieChart chartData={mediaTypePieChartData} />
+              </div>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
